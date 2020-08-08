@@ -20,5 +20,4 @@ RUN set -eux; \
 	rm -rf /tmp/*; \
 	rm -rf /var/cache/apk/*; \
 	mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
-	composer self-update; \
-	php -m;
+	composer self-update;

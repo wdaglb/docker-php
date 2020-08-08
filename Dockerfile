@@ -10,6 +10,7 @@ RUN set -eux; \
 	apk add --no-cache bash; \
 	apk add php7-pdo; \
 	apk add php7-pdo_mysql; \
+	apk add composer; \
 	curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz; \
 	cd /tmp; \
 	tar xfz redis.tar.gz; \
@@ -19,4 +20,5 @@ RUN set -eux; \
 	rm -rf /tmp/*; \
 	rm -rf /var/cache/apk/*; \
 	mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
+	composer self-update; \
 	php -m;

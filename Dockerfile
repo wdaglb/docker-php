@@ -38,7 +38,6 @@ RUN set -eux; \
         --enable-openssl \
         --enable-http2; \
     make && make install; \
-    #make clean; \
     echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/swoole.ini; \
 	#mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
 	composer self-update; \

@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.2-fpm-alpine
 
 ENV PHPREDIS_VERSION 5.3.1
 #ENV PS1 [\u@\h \W]\$
@@ -18,6 +18,7 @@ RUN set -eux; \
 	# apk add --no-cache composer; \
 	curl -L -o /usr/local/bin/composer https://mirrors.aliyun.com/composer/composer.phar; \
 	chmod a+x /usr/local/bin/composer; \
+	composer self-update --1; \
 	apk add --no-cache gd\
 	    zlib-dev \
 	    freetype \
@@ -30,8 +31,8 @@ RUN set -eux; \
 	    ; \
 	# gd
 	docker-php-ext-configure gd \
-	    --with-freetype=/usr/include/ \
-	    --with-jpeg=/usr/include/; \
+	    --with-freetype-dir=/usr/include/ \
+	    --with-jpeg-dir=/usr/include/; \
 	docker-php-ext-install gd; \
 	# redis
 	curl -L -o /tmp/redis.tar.gz https://github.com.cnpmjs.org/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz; \

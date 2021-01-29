@@ -1,13 +1,14 @@
 FROM php:8.0-fpm-alpine
 
 ENV PHPREDIS_VERSION 5.3.2
-ENV SWOOLE_VERSION 4.5.9
+ENV SWOOLE_VERSION 4.6.2
 
 #ENV PS1 [\u@\h \W]\$
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-#RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories && \
-#    echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories && \
+    echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
 RUN apk update && apk upgrade
 
 RUN set -eux; \
@@ -21,7 +22,6 @@ RUN set -eux; \
 	# apk add --no-cache composer; \
 	curl -L -o /usr/local/bin/composer https://mirrors.aliyun.com/composer/composer.phar; \
 	chmod a+x /usr/local/bin/composer; \
-	composer self-update --1; \
 	apk add --no-cache gd\
 	    zlib-dev \
 	    freetype \

@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:5.6-fpm
 COPY ./php.ini /usr/local/etc/php/php.ini
 ENV PHPREDIS_VERSION 4.2.0
 ENV BUILD_DIR /build
@@ -44,17 +44,6 @@ RUN docker-php-source extract \
     && mkdir -p /usr/src/php/ext \
     && mv phpredis-$PHPREDIS_VERSION /usr/src/php/ext/redis \
     && docker-php-ext-install redis \
-	
-    # swoole
-	&& cd $BUILD_DIR \
-    && curl -L -o $BUILD_DIR/swoole.tgz 'http://pecl.php.net/get/swoole-4.2.5.tgz' \
-    && tar zxvf swoole.tgz \
-    && cd swoole-4.2.5 \
-    && phpize \
-    && ./configure \
-    && make && make install \
-    && echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini \
-    && echo 'swoole complete!' \
 	
     && curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \

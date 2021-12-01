@@ -1,6 +1,6 @@
-FROM php:8.0-fpm-alpine
+FROM php:8.1-fpm-alpine
 
-ENV PHPREDIS_VERSION 5.3.2
+ENV PHPREDIS_VERSION 5.3.4
 ENV SWOOLE_VERSION 4.6.2
 
 #ENV PS1 [\u@\h \W]\$

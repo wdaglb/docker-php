@@ -4,7 +4,7 @@ ENV PHPREDIS_VERSION 5.3.1
 ENV SWOOLE_VERSION 4.8.12
 #ENV PS1 [\u@\h \W]\$
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 #RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories && \
 #    echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
 RUN apk update && apk upgrade

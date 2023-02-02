@@ -1,67 +1,67 @@
-FROM php:7.4-fpm
-COPY ./php.ini /usr/local/etc/php/php.ini
-ENV PHPREDIS_VERSION 4.2.0
-ENV BUILD_DIR /build
+FROM php:8.0-fpm-alpine
 
-RUN usermod -u 1000 www-data \
-    && groupmod -g 1000 www-data
+ENV PHPREDIS_VERSION 5.3.4
+ENV SWOOLE_VERSION 4.8.12
 
-RUN docker-php-source extract \
-    && apt-get update \
-    && apt-get install -y imagemagick  \
-    && apt-get install -y libmagickwand-dev libmagickcore-dev \
-    && apt-get install -y zip unzip libpng-dev libfreetype6-dev libjpeg62-turbo-dev openssh-server \
-    # git
-    && apt-get install -y openssl libssl-dev zlib1g-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip \
-    && mkdir $BUILD_DIR \
-    && cd $BUILD_DIR \
-    && curl -L -o $BUILD_DIR/git.tar.gz https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.9.5.tar.gz \
-    && tar xvf git.tar.gz \
-    && rm -rf git.tar.gz \
-    && cd git-2.9.5 \
-    && make prefix=/usr/local all \
-    && make prefix=/usr/local install \
+#ENV PS1 [\u@\h \W]\$
 
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install pdo pdo_mysql mysqli iconv zip \
-    && docker-php-ext-install gd \
-    && echo 'mysql complete!' \
-	
-    && cd $BUILD_DIR \
-    && curl -L -o $BUILD_DIR/imagick.tgz https://pecl.php.net/get/imagick-3.4.3.tgz \
-    && tar zxvf imagick.tgz \
-    && cd imagick-3.4.3 \
-    && phpize \
-    && ./configure \
-    && make && make install \
-    && echo 'extension=imagick.so' >> /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini \
-	
-	
-    # reids
-    && cd $BUILD_DIR \
-    && curl -L -o $BUILD_DIR/redis.tar.gz https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz \
-    && tar xfz redis.tar.gz \
-    && mkdir -p /usr/src/php/ext \
-    && mv phpredis-$PHPREDIS_VERSION /usr/src/php/ext/redis \
-    && docker-php-ext-install redis \
-	
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+#RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories && \
+#    echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
+RUN apk update && apk upgrade
+
+RUN set -eux; \
+	#apk add --no-cache bash bash-doc bash-completion; \
+	#apk add --no-cache bash; \
+	apk add --no-cache gcc g++ make libffi-dev openssl-dev autoconf; \
+	#apk add --no-cache php8-pdo php8-pdo_mysql git; \
+	apk add --no-cache git; \
+	#echo "export PS1='[\u@\h \W]\$'" > ~/.bash_profile; \
+	#source ~/.bash_profile; \
+	# apk add --no-cache composer; \
+	curl -L -o /usr/local/bin/composer https://mirrors.aliyun.com/composer/composer.phar; \
+	chmod a+x /usr/local/bin/composer; \
+	apk add --no-cache gd\
+	    zlib-dev \
+	    freetype \
+	    freetype-dev \
+	    libpng \
+	    libpng-dev \
+	    libjpeg-turbo \
+	    libjpeg-turbo-dev \
+		libzip-dev \
+	    ; \
+	# gd
+	docker-php-ext-configure gd \
+	    --with-freetype=/usr/include/ \
+	    --with-jpeg=/usr/include/; \
+	docker-php-ext-install gd; \
+	# redis
+	curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz; \
+	cd /tmp; \
+	tar xfz redis.tar.gz; \
+	mkdir -p /usr/src/php/ext; \
+    mv phpredis-$PHPREDIS_VERSION /usr/src/php/ext/redis; \
+	docker-php-ext-install redis pdo_mysql zip; \
     # swoole
-	&& cd $BUILD_DIR \
-    && curl -L -o $BUILD_DIR/swoole.tgz 'http://pecl.php.net/get/swoole-4.2.5.tgz' \
-    && tar zxvf swoole.tgz \
-    && cd swoole-4.2.5 \
-    && phpize \
-    && ./configure \
-    && make && make install \
-    && echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini \
-    && echo 'swoole complete!' \
-	
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer \
-    && composer config -g repo.packagist composer https://packagist.laravel-china.org \
-    && echo 'composer complete!' \
-    && rm -rf $BUILD_DIR \
-    && docker-php-source delete
+    echo 'down swoole...'; \
+    curl -L -o /tmp/swoole.tar.gz https://github.com/swoole/swoole-src/archive/v$SWOOLE_VERSION.tar.gz; \
+    cd /tmp; \
+    tar zxvf swoole.tar.gz; \
+    mv swoole-src* swoole-src; \
+    cd swoole-src; \
+    phpize; \
+    ./configure \
+        --enable-openssl \
+        --enable-http2; \
+    make && make install; \
+    echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/swoole.ini; \
+	#mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
+	docker-php-source delete; \
+	apk del g++; \
+	rm -rf /tmp/*; \
+	rm -rf /var/cache/apk/*; \
+	rm -rf /tmp/pear ~/.pearrc;
 
-#USER 1000
 WORKDIR /www

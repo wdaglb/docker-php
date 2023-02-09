@@ -37,6 +37,7 @@ RUN set -eux; \
 	    --with-freetype=/usr/include/ \
 	    --with-jpeg=/usr/include/; \
 	docker-php-ext-install gd; \
+    docker-php-ext-install -j$(nproc) bcmath pcntl; \
 	# redis
 	curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz; \
 	cd /tmp; \
@@ -57,6 +58,7 @@ RUN set -eux; \
         --enable-http2; \
     make && make install; \
     echo 'extension=swoole.so' >> /usr/local/etc/php/conf.d/swoole.ini; \
+    echo 'swoole.use_shortname='Off'' >> /usr/local/etc/php/conf.d/swoole-config.ini; \
 	#mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
 	docker-php-source delete; \
 	apk del g++; \
